@@ -4,11 +4,13 @@
 
 ## 目录
 
-| 平台 | 题目 | 分类 | 状态 |
-|---|---|---|---|
-| picoCTF (picoGym) | 见 [00-选题清单.md](00-选题清单.md) | — | 待打题 |
+| 平台 | 题目 | 分类 | 状态 | 目录 |
+|---|---|---|---|---|
+| picoCTF (picoGym) | dont-use-client-side | Web | 待打题 | [picoctf/dont-use-client-side/](picoctf/dont-use-client-side/) |
+| picoCTF (picoGym) | 13 | Crypto | 待打题 | [picoctf/13/](picoctf/13/) |
+| picoCTF (picoGym) | information | Forensics | 待打题 | [picoctf/information/](picoctf/information/) |
 
-> 本目录只收录真实解题记录。做题前先读 [00-选题清单.md](00-选题清单.md)，按清单留证（命令历史 + 截图）。
+> 本目录只收录真实解题记录。做题前先读 [00-选题清单.md](00-选题清单.md)，按清单留证（命令历史 + 截图）。每道题的截图放进对应题目目录的 `screenshots/` 子目录（已建好占位）。
 
 ## 撰写流程（自用）
 
