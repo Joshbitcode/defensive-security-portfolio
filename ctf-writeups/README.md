@@ -6,7 +6,7 @@ Records of challenges I have **actually solved**. Each writeup follows a fixed s
 
 | Platform | Challenge | Category | Status | Directory |
 |---|---|---|---|---|
-| picoCTF (picoGym) | dont-use-client-side | Web | To do | [picoctf/dont-use-client-side/](picoctf/dont-use-client-side/) |
+| picoCTF (picoGym) | dont-use-client-side | Web | Done | [writeup](picoctf/dont-use-client-side/writeup.md) |
 | picoCTF (picoGym) | 13 | Crypto | Done | [writeup](picoctf/13/writeup.md) |
 | picoCTF (picoGym) | information | Forensics | Done | [writeup](picoctf/information/writeup.md) |
 
