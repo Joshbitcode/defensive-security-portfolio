@@ -40,13 +40,9 @@ The challenge serves a "super secure portal" with a password box. The first thin
 
 So the "secret" password is sitting right there in the page, just shuffled. All I had to do was collect the chunks and reorder them by their position index: `pico` + `CTF{` + `no_c` + `lien` + `ts_p` + `lz_2` + `eb02` + `b45}`, which gives the flag directly.
 
-![challenge page](screenshots/Snipaste_2026-08-17_17-15-06.png)
+![challenge page](screenshots/Snipaste_2026-08-17_17-25-22.png)
 
-![viewing the page source](screenshots/Snipaste_2026-08-17_17-15-17.png)
-
-![the verify() function in DevTools](screenshots/Snipaste_2026-08-17_17-16-49.png)
-
-![Password Verified alert](screenshots/Snipaste_2026-08-17_17-18-09.png)
+![the verify() function in the page source](screenshots/Snipaste_2026-08-17_17-25-27.png)
 
 ![successful submission](screenshots/Snipaste_2026-08-17_17-18-27.png)
 
