@@ -8,7 +8,7 @@ Records of challenges I have **actually solved**. Each writeup follows a fixed s
 |---|---|---|---|---|
 | picoCTF (picoGym) | dont-use-client-side | Web | To do | [picoctf/dont-use-client-side/](picoctf/dont-use-client-side/) |
 | picoCTF (picoGym) | 13 | Crypto | Done | [writeup](picoctf/13/writeup.md) |
-| picoCTF (picoGym) | information | Forensics | To do | [picoctf/information/](picoctf/information/) |
+| picoCTF (picoGym) | information | Forensics | Done | [writeup](picoctf/information/writeup.md) |
 
 > This directory only contains real solving records. Before starting a challenge, read [starter-picks.md](starter-picks.md) first and preserve evidence per the list (command history + screenshots). Put each challenge's screenshots in the `screenshots/` subdirectory of its challenge directory (placeholders already created).
 
