@@ -1,7 +1,8 @@
-"""时间窗口去重：last-seen + TTL（见 DESIGN.md §3）。
+"""Time-window dedup: last-seen + TTL (see DESIGN.md §3).
 
-同一 dedup_key 在窗口内（前后两个方向都算）只保留第一条，重复的刷新
-last-seen，实现"带过期的滑动窗口"效果，对持续几分钟的扫描也能合并。
+Within the window (in both directions), only the first occurrence of the same
+dedup_key is kept; duplicates refresh last-seen, producing an "expiring sliding
+window" effect that also merges scans lasting a few minutes.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ class Deduper:
         self._last_seen: dict[str, datetime] = {}
 
     def seed(self, last_seen: dict[str, datetime]) -> None:
-        """用数据库里已有的 last-seen 状态初始化（重启后不丢去重状态）。"""
+        """Initialize from the last-seen state already in the database (so dedup state survives restarts)."""
         self._last_seen.update(last_seen)
 
     def is_duplicate(self, key: str, ts: datetime) -> bool:

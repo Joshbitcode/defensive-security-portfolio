@@ -1,26 +1,26 @@
 # CTF Writeups
 
-记录自己**真实做过的题**。每篇 writeup 按固定结构撰写，保留当时的命令与截图，突出"为什么这么想"而不是流水账。
+Records of challenges I have **actually solved**. Each writeup follows a fixed structure, keeps the commands and screenshots from the time, and emphasizes "why I thought this way" rather than a blow-by-blow log.
 
-## 目录
+## Contents
 
-| 平台 | 题目 | 分类 | 状态 | 目录 |
+| Platform | Challenge | Category | Status | Directory |
 |---|---|---|---|---|
-| picoCTF (picoGym) | dont-use-client-side | Web | 待打题 | [picoctf/dont-use-client-side/](picoctf/dont-use-client-side/) |
-| picoCTF (picoGym) | 13 | Crypto | 待打题 | [picoctf/13/](picoctf/13/) |
-| picoCTF (picoGym) | information | Forensics | 待打题 | [picoctf/information/](picoctf/information/) |
+| picoCTF (picoGym) | dont-use-client-side | Web | To do | [picoctf/dont-use-client-side/](picoctf/dont-use-client-side/) |
+| picoCTF (picoGym) | 13 | Crypto | To do | [picoctf/13/](picoctf/13/) |
+| picoCTF (picoGym) | information | Forensics | To do | [picoctf/information/](picoctf/information/) |
 
-> 本目录只收录真实解题记录。做题前先读 [00-选题清单.md](00-选题清单.md)，按清单留证（命令历史 + 截图）。每道题的截图放进对应题目目录的 `screenshots/` 子目录（已建好占位）。
+> This directory only contains real solving records. Before starting a challenge, read [starter-picks.md](starter-picks.md) first and preserve evidence per the list (command history + screenshots). Put each challenge's screenshots in the `screenshots/` subdirectory of its challenge directory (placeholders already created).
 
-## 撰写流程（自用）
+## Writing Workflow (for myself)
 
-1. 在 picoGym 打开题目，先独立尝试 30 分钟；
-2. 边做边留证：终端命令历史、关键步骤截图（含题目页、你的操作、flag 提交成功页）；
-3. 解出后按 [template.md](template.md) 的结构补全 writeup；
-4. 截图放进各题目目录的 `screenshots/` 子目录，在正文用占位符引用。
+1. Open the challenge in picoGym and try independently for 30 minutes first;
+2. Preserve evidence as you go: terminal command history, screenshots of key steps (the challenge page, your actions, the flag-submission success page);
+3. After solving, complete the writeup following the structure in [template.md](template.md);
+4. Put screenshots in each challenge directory's `screenshots/` subdirectory and reference them with placeholders in the body.
 
-## 规则
+## Rules
 
-- **只写真做过的题**：不复制他人 writeup，不虚构解题过程；
-- **不剧透他人体验**：flag 按 picoCTF 惯例可写（picoGym 题目为公开练习），但保留自己的思考路径，重点写"我为什么想到这么做"；
-- 每题文末必须落到**防御启示**：这道题暴露的现实世界弱点、对应防御措施。
+- **Only write challenges I actually solved**: don't copy others' writeups, don't fabricate the solving process;
+- **Don't spoil the experience for others**: flags may be written per picoCTF convention (picoGym challenges are public practice), but keep my own reasoning path and focus on "why I thought of doing this";
+- Each writeup must end with a **defensive takeaway**: the real-world weakness the challenge exposes and the corresponding defensive measures.

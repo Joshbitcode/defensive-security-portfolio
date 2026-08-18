@@ -1,16 +1,16 @@
-# honeypot-alert-aggregator 配置示例
-# 复制为 config.toml 后按需修改。所有键均有实现侧默认值。
+# honeypot-alert-aggregator configuration example
+# Copy to config.toml and adjust as needed. Every key has an implementation-side default.
 
 [dedup]
-# 同源、同类、同载荷事件视为重复的时间窗口（秒）
+# Time window (seconds) in which same-source, same-type, same-payload events count as duplicates
 window_seconds = 300
 
 [store]
-# sqlite3 状态库路径（相对工作目录或绝对路径）
+# sqlite3 state database path (relative to the working directory, or absolute)
 path = "hpa.db"
 
 [report]
-# report 命令默认统计窗口（小时）
+# Default report window in hours for the report command
 default_window_hours = 24
-# 报告中按事件数排序展示的来源 IP 数量
+# Number of source IPs shown in the report, ordered by event count
 top_n = 20

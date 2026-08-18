@@ -1,85 +1,86 @@
-# honeypot-alert-aggregator（hpa）
+# honeypot-alert-aggregator (hpa)
 
-> 防御向小工具。**代码由仓库所有者编写，本文档只提供定位、设计、目录结构与用法约定；文中示例输出均为演示格式，不是真实运行结果。**
+> A defense-oriented utility. **The code is written by the repository owner; this document only provides positioning, design, directory structure, and usage conventions; all example outputs in this document are demo formats, not real run results.**
 
-## 功能定位
+## Purpose
 
-**蜜罐告警聚合**：把多个蜜罐节点（如 cowrie、dionaea 及各类低交互蜜罐）上报的告警统一接入，做三件事：
+**Honeypot alert aggregation**: take the alerts reported by multiple honeypot nodes (e.g. cowrie, dionaea, and various low-interaction honeypots), ingest them in one place, and do three things:
 
-1. **归一化**：不同蜜罐的原始日志 → 统一告警结构；
-2. **去重**：同源、同类、同载荷的重复告警在时间窗口内合并（扫描器与重放流量会产生大量噪声）；
-3. **聚合**：按时间窗口/来源 IP 汇总，输出摘要报告（明细、按源 IP 统计、跨节点命中提示）。
+1. **Normalize**: raw logs from different honeypots → a unified alert structure;
+2. **Deduplicate**: merge duplicate alerts of the same source, type, and payload within a time window (scanners and replay traffic generate a lot of noise);
+3. **Aggregate**: summarize by time window / source IP and output summary reports (details, per-source-IP stats, cross-node hit hints).
 
-典型使用场景：个人或小团队运行 2–5 个蜜罐节点，每天收到成百上千条告警，需要快速回答三个问题——**谁在打我？在打什么？哪些值得我人工看？**
+Typical scenario: an individual or a small team runs 2–5 honeypot nodes, receives hundreds to thousands of alerts a day, and needs to answer three questions fast — **who is hitting me? what are they hitting? which ones deserve my manual review?**
 
-## 技术栈选型
+## Tech Stack Choices
 
-| 层 | 选择 | 理由 |
+| Layer | Choice | Rationale |
 |---|---|---|
-| 语言 | Python ≥ 3.10 | 生态成熟、部署简单，与蜜罐工具链同语言 |
-| CLI | argparse（标准库） | 零依赖 |
-| 配置 | TOML（标准库 tomllib，需 Python ≥ 3.11） | 人类可读、机器可写 |
-| 存储 | sqlite3（标准库） | 单文件、无服务、重启不丢状态 |
-| 去重/载荷摘要 | hashlib | 载荷哈希作为去重键的一部分 |
-| 可选富化 | geoip2（optional extra） | 只做"可选"，不设为默认依赖 |
-| 输出 | 文本表格 / JSON / CSV（标准库 csv、json） | 人看文本，机器接 JSON |
+| Language | Python ≥ 3.10 | Mature ecosystem, simple deployment, same language as the honeypot toolchain |
+| CLI | argparse (stdlib) | Zero dependencies |
+| Config | TOML (stdlib tomllib, requires Python ≥ 3.11) | Human-readable, machine-writable |
+| Storage | sqlite3 (stdlib) | Single file, no service, state survives restarts |
+| Dedup / payload summary | hashlib | Payload hash as part of the dedup key |
+| Optional enrichment | geoip2 (optional extra) | Kept "optional", not a default dependency |
+| Output | text tables / JSON / CSV (stdlib csv, json) | Humans read text, machines consume JSON |
 
-原则：**标准库优先，重型依赖为可选 extra**。这个工具的价值在"聚合逻辑正确"而不是依赖多。
+Principle: **stdlib first, heavy dependencies as optional extras**. This tool's value is "correct aggregation logic", not the number of dependencies.
 
-## 目录结构
+## Directory Structure
 
 ```text
 honeypot-alert-aggregator/
-├── README.md                  # 本文件
-├── DESIGN.md                  # 设计评审文档
-├── config.example.toml        # 配置示例
+├── pyproject.toml             # package metadata / entry point
+├── README.md                  # this file
+├── DESIGN.md                  # design review document
+├── config.example.toml        # configuration example
 ├── samples/
-│   └── alerts.jsonl           # 示例告警（合成数据，非真实攻击流量）
+│   └── alerts.jsonl           # sample alerts (synthetic data, not real attack traffic)
 ├── src/
 │   └── hpa/
 │       ├── __init__.py
-│       ├── __main__.py        # python -m hpa 入口
-│       ├── cli.py             # argparse 子命令
-│       ├── config.py          # TOML 读取与校验
-│       ├── models.py          # 统一告警结构（dataclass）
-│       ├── adapters/          # 各蜜罐格式 → 统一结构
+│       ├── __main__.py        # python -m hpa entry point
+│       ├── cli.py             # argparse subcommands
+│       ├── config.py          # TOML loading and validation
+│       ├── models.py          # unified alert structure (dataclass)
+│       ├── adapters/          # honeypot-specific formats -> unified structure
 │       │   ├── __init__.py
 │       │   └── generic_jsonl.py
-│       ├── dedup.py           # 复合键 + 时间窗口去重（纯函数优先）
-│       ├── aggregate.py       # 时间桶/按源 IP 聚合（纯函数优先）
-│       ├── store.py           # sqlite3 读写
-│       └── report.py          # 文本/JSON/CSV 输出
+│       ├── dedup.py           # composite key + time-window dedup (pure functions first)
+│       ├── aggregate.py       # time-bucket / per-source-IP aggregation (pure functions first)
+│       ├── store.py           # sqlite3 read/write
+│       └── report.py          # text/JSON/CSV output
 └── tests/
-    ├── test_dedup.py          # 去重逻辑单测（样例数据）
-    └── test_aggregate.py      # 聚合逻辑单测
+    ├── test_dedup.py          # dedup logic unit tests (sample data)
+    └── test_aggregate.py      # aggregation logic unit tests
 ```
 
-## 用法示例
+## Usage Examples
 
-以下命令形态为**接口约定**，具体行为以实现为准；示例输出为演示格式。
+The command shapes below are **interface conventions**; concrete behavior is subject to the implementation; example outputs are demo formats.
 
 ```bash
-# 安装（可选，装了之后直接敲 hpa；不装也可用 PYTHONPATH=src python -m hpa）
+# install (optional; after this you can call hpa directly, otherwise use PYTHONPATH=src python -m hpa)
 pip install -e .
 
-# 接入一条或多条告警（JSON Lines，不带文件参数则读 stdin）
+# ingest one or more alert files (JSON Lines; with no file argument it reads stdin)
 python -m hpa ingest samples/alerts.jsonl
 
-# 查看最近 24 小时汇总：按来源 IP、事件类型、蜜罐节点统计
+# last-24h summary: per source IP, event type, honeypot node
 python -m hpa report --last 24 --format text
 
-# 指定显式时间窗口（适合回溯历史告警）
+# explicit time window (useful for looking back at historical alerts)
 python -m hpa report --since 2026-02-01T00:00:00Z --until 2026-02-02T00:00:00Z
 
-# 导出机器可读报告
+# export a machine-readable report
 python -m hpa report --last 168 --format json -o report.json
 
-# 查看去重与存储状态
+# dedup and storage status
 python -m hpa status
 ```
 
 ```text
-[示例输出 · 非真实运行结果]
+[example output - not a real run]
 Report window: 2026-02-01T00:00:00Z ~ 2026-02-02T00:00:00Z
 unique events (after dedup): 17   raw events: 1,204
 
@@ -88,31 +89,31 @@ top source IPs:
   198.51.100.7   conn=47   events=1  honeypots=1/3  [http-scan]
 ```
 
-## 告警输入格式约定
+## Alert Input Format Convention
 
-统一抽象层（`models.py`）字段约定：
+The unified abstraction layer (`models.py`) field conventions:
 
 ```json
 {"ts": "2026-02-01T12:34:56Z", "src_ip": "203.0.113.42", "src_port": 48123,
  "dst_ip": "192.0.2.10", "dst_port": 2222, "honeypot": "ssh-01",
- "event_type": "ssh-auth", "payload_hash": "<sha256 前缀，可选>", "raw": "..."}
+ "event_type": "ssh-auth", "payload_hash": "<sha256 prefix, optional>", "raw": "..."}
 ```
 
-`samples/alerts.jsonl` 提供一批**合成示例**（RFC 5737 文档地址段），仅用于测试聚合逻辑。
+`samples/alerts.jsonl` provides a batch of **synthetic examples** (RFC 5737 documentation address ranges), used only to test the aggregation logic.
 
-## 设计要点（详见 DESIGN.md）
+## Design Highlights (see DESIGN.md for details)
 
-- 去重键 = `(src_ip, dst_port, honeypot, event_type, payload_hash)` + 时间窗口（默认 300 s，可配）；
-- **跨节点命中提示**：同一来源 IP 出现在多个蜜罐节点，自动标记为"值得人工关注"；
-- 纯函数优先：去重/聚合逻辑不碰 IO，便于单测与评审。
+- Dedup key = `(src_ip, dst_port, honeypot, event_type, payload_hash)` + time window (default 300 s, configurable);
+- **Cross-node hit hint**: when the same source IP appears on multiple honeypot nodes, it is automatically flagged as "worth manual review";
+- Pure functions first: dedup/aggregation logic does not touch IO, making it easy to unit-test and review.
 
-## 状态与边界
+## Status and Boundaries
 
-- 代码已实现（v0.1，Python ≥ 3.11，标准库 only），单元测试 6/6 通过；下面"验证过的运行输出"一节是对 `samples/alerts.jsonl`（合成数据）的真实运行结果；
-- 本工具是**学习型防御工具**，不替代 SIEM/SOAR，不承诺处理大规模生产流量；
-- 若接入真实蜜罐数据，请自查当地法律与蜜罐部署的合规边界（仅部署在自有资产上）。
+- Code is implemented (v0.1, Python ≥ 3.11, stdlib only), unit tests 6/6 passing; the "Verified run output" section below is the real run result over `samples/alerts.jsonl` (synthetic data);
+- This tool is a **learning-oriented defensive tool**, not a SIEM/SOAR replacement, and makes no promise of handling large-scale production traffic;
+- If ingesting real honeypot data, check local laws and the compliance boundaries of honeypot deployment yourself (deploy only on your own assets).
 
-## 验证过的运行输出（真实测试运行，输入为合成样例）
+## Verified Run Output (real test run, input is the synthetic sample)
 
 ```text
 $ python -m hpa --db tmp-e2e.db ingest samples/alerts.jsonl
@@ -127,10 +128,10 @@ top source IPs:
       198.51.100.7  events=1    honeypots=1  [http-scanx1]
 ```
 
-解读：5 条原始告警中 1 条被 300 s 窗口去重；203.0.113.42 同时命中 ssh-01 与 telnet-02 两个蜜罐，被标记 `[cross-node]` 并置顶——这正是设计目标"谁值得人工看"。
+Interpretation: of 5 raw alerts, 1 was deduplicated by the 300 s window; 203.0.113.42 hit both the ssh-01 and telnet-02 honeypots, was flagged `[cross-node]` and placed on top — exactly the design goal of "who deserves manual review".
 
-## 运行测试
+## Running Tests
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v   # 6 个用例，全过
+PYTHONPATH=src python -m unittest discover -s tests -v   # 6 tests, all passing
 ```

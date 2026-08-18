@@ -1,14 +1,15 @@
-"""聚合逻辑（纯函数，不碰 IO）：按来源 IP 汇总 + 跨节点标记（见 DESIGN.md §5）。"""
+"""Aggregation logic (pure functions, no IO): summarize by source IP + cross-node flagging (see DESIGN.md §5)."""
 from __future__ import annotations
 
 from .models import Event
 
 
 def aggregate(events: list[Event], top_n: int = 20) -> dict:
-    """把窗口内的事件按来源 IP 聚合，输出报告数据结构。
+    """Aggregate events in the window by source IP and output a report data structure.
 
-    指标：事件数（去重后）、事件类型分布、命中蜜罐数、首末出现时间；
-    命中蜜罐 >= 2 的来源标记 cross_node，报告里置顶（值得人工关注）。
+    Metrics: event count (post-dedup), event-type distribution, honeypots hit,
+    first/last occurrence time; sources with honeypots hit >= 2 are flagged
+    cross_node and placed on top in the report (worth manual review).
     """
     per_src: dict[str, dict] = {}
     for e in events:

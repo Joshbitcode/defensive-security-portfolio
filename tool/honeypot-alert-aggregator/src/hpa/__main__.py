@@ -1,4 +1,4 @@
-"""支持 python -m hpa 运行。"""
+"""Enables running via python -m hpa."""
 from .cli import main
 
 raise SystemExit(main())

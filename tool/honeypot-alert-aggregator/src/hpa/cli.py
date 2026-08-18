@@ -1,4 +1,4 @@
-"""命令行入口：ingest / report / status 三个子命令。"""
+"""Command-line entry point: the ingest / report / status subcommands."""
 from __future__ import annotations
 
 import argparse
@@ -111,31 +111,31 @@ def _status(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="hpa", description="蜜罐告警聚合器：归一化、去重、汇总（防御向学习工具）"
+        prog="hpa", description="Honeypot alert aggregator: normalize, deduplicate, and summarize (a defense-oriented learning tool)"
     )
     parser.add_argument("--version", action="version", version=f"hpa {__version__}")
     parser.add_argument(
-        "--db", default=None, help="sqlite 数据库路径（默认取配置或 hpa.db）"
+        "--db", default=None, help="path to the sqlite database (defaults to config or hpa.db)"
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_ingest = sub.add_parser("ingest", help="接入 JSONL 告警（文件参数或 stdin）")
-    p_ingest.add_argument("files", nargs="*", help="JSONL 文件路径，不给则读 stdin")
-    p_ingest.add_argument("--window", type=int, default=None, help="去重窗口秒数（默认 300）")
+    p_ingest = sub.add_parser("ingest", help="ingest JSONL alerts (file arguments or stdin)")
+    p_ingest.add_argument("files", nargs="*", help="JSONL file paths; reads stdin if none given")
+    p_ingest.add_argument("--window", type=int, default=None, help="dedup window in seconds (default 300)")
     p_ingest.set_defaults(func=_ingest)
 
-    p_report = sub.add_parser("report", help="输出时间窗口汇总报告")
-    p_report.add_argument("--last", type=int, default=None, help="统计最近 N 小时（默认 24）")
-    p_report.add_argument("--since", default=None, help="窗口起点（ISO8601，如 2026-02-01T00:00:00Z）")
-    p_report.add_argument("--until", default=None, help="窗口终点（ISO8601，默认当前时间）")
-    p_report.add_argument("--top", type=int, default=None, help="展示来源 IP 数量（默认 20）")
+    p_report = sub.add_parser("report", help="output a time-window summary report")
+    p_report.add_argument("--last", type=int, default=None, help="summarize the last N hours (default 24)")
+    p_report.add_argument("--since", default=None, help="window start (ISO8601, e.g. 2026-02-01T00:00:00Z)")
+    p_report.add_argument("--until", default=None, help="window end (ISO8601, defaults to now)")
+    p_report.add_argument("--top", type=int, default=None, help="number of source IPs to show (default 20)")
     p_report.add_argument(
-        "--format", choices=["text", "json", "csv"], default="text", help="输出格式"
+        "--format", choices=["text", "json", "csv"], default="text", help="output format"
     )
-    p_report.add_argument("-o", "--output", default=None, help="写入文件而不是 stdout")
+    p_report.add_argument("-o", "--output", default=None, help="write to a file instead of stdout")
     p_report.set_defaults(func=_report)
 
-    p_status = sub.add_parser("status", help="查看存储状态")
+    p_status = sub.add_parser("status", help="show storage status")
     p_status.set_defaults(func=_status)
 
     return parser

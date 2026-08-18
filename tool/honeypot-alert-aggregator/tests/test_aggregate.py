@@ -1,4 +1,4 @@
-"""聚合逻辑单测：跨节点标记与排序。"""
+"""Aggregation logic unit tests: cross-node flagging and ordering."""
 import unittest
 from datetime import datetime, timezone
 
@@ -27,7 +27,7 @@ class TestAggregate(unittest.TestCase):
         result = aggregate(events)
         self.assertEqual(result["source_count"], 2)
         first = result["sources"][0]
-        self.assertEqual(first["src_ip"], "203.0.113.42")  # cross-node 置顶
+        self.assertEqual(first["src_ip"], "203.0.113.42")  # cross-node pinned to top
         self.assertTrue(first["cross_node"])
         self.assertEqual(first["honeypots_hit"], 2)
         self.assertEqual(first["events"], 2)

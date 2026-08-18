@@ -1,25 +1,25 @@
-# Hi，我是 YOUR_USERNAME
+# Hi, I'm YOUR_USERNAME
 
-> 防御向的安全学习者。这里放我的 GitHub 主页简介——把它复制到 YOUR_USERNAME 同名仓库，GitHub 就会把它显示在个人主页上。
+> A defense-oriented security learner. This is the intro for my GitHub profile — copy it into the repository named YOUR_USERNAME and GitHub will display it on your profile page.
 
-## 我正在做什么
+## What I'm Working On
 
-- 分析公开 CVE：读公告、读补丁 diff、写根因分析（见作品集仓库的 cve-analysis/）；
-- 打 CTF 练手并记录 writeup（见 ctf-writeups/）；
-- 写防御向的小工具（当前：蜜罐告警聚合）。
+- Analyzing public CVEs: reading advisories, reading patch diffs, and writing root-cause analyses (see cve-analysis/ in the portfolio repository);
+- Practicing CTF and recording writeups (see ctf-writeups/);
+- Writing defense-oriented utilities (current: honeypot alert aggregation).
 
-## 作品集
+## Portfolio
 
-- 主仓库：https://github.com/YOUR_USERNAME/YOUR_PORTFOLIO_REPO
-  - CVE 技术分析 · CTF writeups · 防御工具设计与文档
+- Main repository: https://github.com/YOUR_USERNAME/YOUR_PORTFOLIO_REPO
+  - CVE technical analysis · CTF writeups · defensive tool design and documentation
 
-## 技能（可验证的部分）
+## Skills (the verifiable parts)
 
-- 漏洞分析：结合补丁 diff 定位根因、给出修复与检测建议；
-- 解题与复盘：CTF 真实解题过程记录，落地防御启示；
-- 工具与文档：防御工具设计、README 与设计评审文档；
-- 工程协作：Git / GitHub。
+- Vulnerability analysis: locating root causes with patch diffs and giving remediation and detection recommendations;
+- Solving and post-mortem: records of real CTF solving processes that land in defensive takeaways;
+- Tools and documentation: defensive tool design, READMEs, and design-review documents;
+- Engineering collaboration: Git / GitHub.
 
-## 原则
+## Principles
 
-防御向研究：不提供武器化利用代码；所有结论标注来源；只记录真实做过的题。
+Defense-oriented research: no weaponized exploit code; every conclusion cites its sources; only record challenges I have actually solved.

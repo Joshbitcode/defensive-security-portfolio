@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hpa"
 version = "0.1.0"
-description = "蜜罐告警聚合器：归一化、去重、汇总（防御向学习工具）"
+description = "Honeypot alert aggregator: normalization, deduplication, and summarization (a defense-oriented learning tool)"
 requires-python = ">=3.11"
 dependencies = []
 

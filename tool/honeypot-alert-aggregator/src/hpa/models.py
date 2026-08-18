@@ -1,4 +1,4 @@
-"""统一告警结构：所有蜜罐格式先归一化成 Event。"""
+"""Unified alert structure: all honeypot formats are normalized into Event first."""
 from __future__ import annotations
 
 import hashlib
@@ -7,9 +7,10 @@ from datetime import datetime, timezone
 
 
 def parse_iso(ts: str) -> datetime:
-    """解析 ISO8601 时间串，统一转成 UTC 时区的 aware datetime。
+    """Parse an ISO8601 time string and normalize it to a UTC-aware datetime.
 
-    统一到 UTC 是为了让数据库里的 isoformat 字符串可以直接按字典序比较。
+    Normalizing to UTC ensures the isoformat strings stored in the database can be
+    compared directly in lexicographic order.
     """
     s = ts.strip()
     if s.endswith("Z"):
@@ -22,7 +23,7 @@ def parse_iso(ts: str) -> datetime:
 
 @dataclass
 class Event:
-    """归一化后的告警。必填：ts / src_ip / dst_ip / honeypot / event_type。"""
+    """A normalized alert. Required: ts / src_ip / dst_ip / honeypot / event_type."""
 
     ts: datetime
     src_ip: str
@@ -35,9 +36,9 @@ class Event:
     raw: str | None = None
 
     def dedup_key(self) -> str:
-        """复合去重键：同源 + 同目的端口 + 同节点 + 同类型 + 同载荷 = 同一行为。
+        """Composite dedup key: same source + same destination port + same node + same type + same payload = the same behavior.
 
-        不含时间；时间交给 Deduper 的窗口机制处理。
+        No time component; time is handled by Deduper's window mechanism.
         """
         material = "|".join(
             [

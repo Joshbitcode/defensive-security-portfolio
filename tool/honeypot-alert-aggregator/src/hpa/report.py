@@ -1,4 +1,4 @@
-"""报告输出：文本（人看）/ JSON / CSV（机器用）。"""
+"""Report output: text (for humans) / JSON / CSV (for machines)."""
 from __future__ import annotations
 
 import csv

@@ -1,55 +1,55 @@
-# DESIGN.md — 蜜罐告警聚合器设计评审
+# DESIGN.md — Honeypot Alert Aggregator Design Review
 
-> 目的：在写代码前把关键决策写下来，让实现阶段少返工。本文档面向代码评审者与未来的自己。
+> Purpose: write down the key decisions before coding so the implementation phase has less rework. This document is for code reviewers and future me.
 
-## 1. 需求与非目标
+## 1. Requirements and Non-Goals
 
-**需求（Must）**
+**Requirements (Must)**
 
-1. 接受多个来源的告警（JSON Lines 输入，适配器可扩展），归一化为统一结构；
-2. 时间窗口去重：同源、同类、同载荷的重复告警合并；
-3. 时间桶聚合：按小时/天输出摘要；按来源 IP 统计连接数、事件类型分布、命中蜜罐数；
-4. 输出三种格式：文本（人看）、JSON/CSV（机器用）；
-5. 状态持久化到 sqlite3 单文件，重启不丢。
+1. Accept alerts from multiple sources (JSON Lines input, extensible adapters), normalize into a unified structure;
+2. Time-window deduplication: merge duplicate alerts of the same source, type, and payload;
+3. Time-bucket aggregation: hourly/daily summaries; per source IP count connections, event-type distribution, and honeypots hit;
+4. Output three formats: text (for humans), JSON/CSV (for machines);
+5. Persist state to a single sqlite3 file, no loss across restarts.
 
-**非目标（Not now）**
+**Non-Goals (Not now)**
 
-- 不做实时流式处理（先做批量 ingest/report）；
-- 不接 SIEM（如 Elasticsearch/Splunk），只输出标准格式留接口；
-- 不做告警自动响应（封禁、联动防火墙）——那是 SOAR 的范畴；
-- 不内置武器化检测规则库（先做聚合，检测规则留给后续）。
+- No real-time stream processing (batch ingest/report first);
+- No SIEM integration (e.g. Elasticsearch/Splunk); only output standard formats to leave an interface;
+- No automatic alert response (blocking, firewall orchestration) — that's SOAR territory;
+- No built-in weaponization detection rule base (aggregation first, detection rules left for later).
 
-## 2. 数据流
+## 2. Data Flow
 
 ```text
-蜜罐节点日志 ──► 适配器(adapter) ──► 统一告警(models) ──► 去重(dedup)
-                                                          │
-报告(report) ◄── 聚合(aggregate) ◄── 存储(store/sqlite3) ◄─┘
+honeypot logs ──► adapter ──► unified alert (models) ──► dedup
+                                                        │
+report ◄── aggregate ◄── store (sqlite3) ◄───────────────┘
 ```
 
-- **适配器**：只负责"翻译"，不负责判断；新增蜜罐类型 = 新增一个适配器文件。
-- **去重**：无状态纯函数，输入统一告警流，输出"是否为新事件"。
-- **聚合**：纯函数，读一批事件，输出统计结构；由 report 命令决定窗口。
-- **存储**：唯一有 IO 的模块，表结构见 §4。
+- **Adapter**: only responsible for "translation", not judgment; a new honeypot type = a new adapter file.
+- **Dedup**: stateless pure function; takes a unified alert stream, outputs "is this a new event".
+- **Aggregate**: pure function; reads a batch of events, outputs a stats structure; the report command decides the window.
+- **Storage**: the only module with IO; schema in §4.
 
-## 3. 去重设计（本工具的核心决策）
+## 3. Dedup Design (this tool's core decision)
 
-### 3.1 复合键
+### 3.1 Composite Key
 
 ```text
 dedup_key = sha256(src_ip | dst_port | honeypot | event_type | payload_hash)[:16]
 ```
 
-- **为什么含 payload_hash**：扫描器/蠕虫对同一端口反复重放相同载荷，只按五元组去重会把这些噪声当新事件；载荷哈希让"同一行为"真正合并。
-- **为什么含 honeypot**：同一行为打到两个节点，是两个节点各自的观测，去重不跨节点（跨节点反而要在聚合层高亮）。
-- **不含时间**：时间由窗口机制处理，键本身时间无关。
+- **Why include payload_hash**: scanners/worms repeatedly replay the same payload against the same port; deduplicating only on the five-tuple would treat this noise as new events; the payload hash makes "the same behavior" actually merge.
+- **Why include honeypot**: the same behavior hitting two nodes is two nodes' separate observations; dedup does not cross nodes (cross-node is instead highlighted at the aggregation layer).
+- **No time**: time is handled by the window mechanism; the key itself is time-independent.
 
-### 3.2 时间窗口
+### 3.2 Time Window
 
-- 默认固定窗口 300 s（可配），实现上记录"事件最后一次出现时间"，采用**带过期滑动的最近一次出现**（last-seen + TTL）而非严格滑窗计数：实现简单、内存有界、对"持续几分钟的扫描"也能合并。
-- 取舍记录：严格滑动窗口（如 5 分钟精确计数）需要保留窗口内所有事件，批量 ingest 场景收益低，故不做。
+- Default fixed window 300 s (configurable); the implementation records "the event's last occurrence time" and uses **last-seen + TTL with expiry** rather than strict sliding-window counting: simpler to implement, bounded memory, and it also merges "scans that last a few minutes".
+- Trade-off note: a strict sliding window (e.g. exact 5-minute counting) would need to retain all events in the window, which brings little benefit in the batch ingest scenario, so it's not done.
 
-## 4. 存储表结构（sqlite3）
+## 4. Storage Schema (sqlite3)
 
 ```sql
 CREATE TABLE events (
@@ -67,19 +67,19 @@ CREATE TABLE events (
 );
 CREATE INDEX idx_events_ts ON events(ts);
 CREATE INDEX idx_events_dedup ON events(dedup_key, ts);
-CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);  -- schema 版本等
+CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);  -- schema version etc.
 ```
 
-设计点：`raw` 保存原始行，保证任何聚合结论都能回溯到原始告警（可验证性的来源）。
+Design point: `raw` keeps the original line, ensuring any aggregation conclusion can be traced back to the original alert (the source of verifiability).
 
-## 5. 聚合规则
+## 5. Aggregation Rules
 
-1. **时间桶**：UTC 小时桶与天桶，避免本地时区歧义；
-2. **按源 IP 指标**：去重后事件数、事件类型分布、命中蜜罐数、首末次出现时间（实现中不采集连接级计数，避免状态膨胀）；
-3. **跨节点命中提示**：`honeypots_hit ≥ 2` 的源 IP 在报告中置顶并标记 `[cross-node]`——同一来源同时扫多个蜜罐，通常是值得人工看的信号；
-4. **输出排序**：先按跨节点标记，再按事件数降序。
+1. **Time buckets**: UTC hour buckets and day buckets, avoiding local timezone ambiguity;
+2. **Per-source-IP metrics**: post-dedup event count, event-type distribution, honeypots hit, first/last occurrence time (the implementation does not collect connection-level counts, to avoid state bloat);
+3. **Cross-node hit hint**: source IPs with `honeypots_hit ≥ 2` are placed on top and flagged `[cross-node]` in the report — the same source scanning multiple honeypots at once is usually a signal worth manual review;
+4. **Output ordering**: cross-node flag first, then event count descending.
 
-## 6. 配置（config.example.toml）
+## 6. Configuration (config.example.toml)
 
 ```toml
 [dedup]
@@ -93,28 +93,28 @@ default_window_hours = 24
 top_n = 20
 ```
 
-## 7. 测试策略
+## 7. Test Strategy
 
-- **纯函数单测优先**：dedup 与 aggregate 不依赖 IO，用 `samples/alerts.jsonl` 构造用例（例如：同键两条告警 → 1 条新事件；跨节点同源 → 标记 cross-node）；
-- **CLI 冒烟测试**：ingest 样例文件 → report 输出非空、格式合法（JSON 可解析）；
-- **不做**：真实蜜罐流量测试（部署环境不具备，也不在本文档承诺范围内）。
+- **Pure-function unit tests first**: dedup and aggregate don't depend on IO, build cases from `samples/alerts.jsonl` (e.g. two alerts with the same key → 1 new event; same source across nodes → flagged cross-node);
+- **CLI smoke test**: ingest the sample file → report output is non-empty and well-formed (JSON parses);
+- **Not doing**: real honeypot traffic testing (the deployment environment doesn't have it, and it's outside this document's promises).
 
-## 8. 演进路线（记录，不承诺）
+## 8. Evolution Roadmap (recorded, not promised)
 
-1. 更多适配器：cowrie JSON、dionaea 上报格式；
-2. 可选 geoip2 富化（源 IP 地理信息，仅标注，不参与去重）；
-3. Webhook 输出（新事件即时推送）；
-4. 规则引擎：基于事件类型/频率的简单检测规则（如"同一 IP 5 分钟内 ssh-auth 失败 ≥ 50 次"）。
+1. More adapters: cowrie JSON, dionaea report format;
+2. Optional geoip2 enrichment (source IP geo info, annotation only, not part of dedup);
+3. Webhook output (immediate push of new events);
+4. Rule engine: simple detection rules based on event type/frequency (e.g. "same IP with ≥ 50 ssh-auth failures in 5 minutes").
 
-## 8.5 实现注记（v0.1 落地后补充）
+## 8.5 Implementation Notes (added after v0.1 landed)
 
-- 时间戳一律解析为 UTC 再以 ISO8601 字符串入库，保证字典序即时间序；
-- `report` 支持 `--since/--until` 显式窗口（`--last` 保留为快捷方式）；
-- Python 要求 ≥ 3.11（配置解析用标准库 tomllib）；
-- 实现与本文档的唯一偏差：§5 的"连接数"落地为"去重后事件数"，已在 §5 注明。
+- Timestamps are always parsed to UTC and stored as ISO8601 strings, so lexicographic order equals time order;
+- `report` supports `--since/--until` explicit windows (`--last` kept as a shortcut);
+- Python ≥ 3.11 required (config parsing uses stdlib tomllib);
+- The only deviation from this document in the implementation: §5's "connection count" landed as "post-dedup event count", already noted in §5.
 
-## 9. 评审结论
+## 9. Review Conclusion
 
-- 设计取舍合理：标准库优先、纯函数核心、sqlite 持久化，适合作为学习型防御工具的第一个版本；
-- 最需要谨慎实现的部分是 **dedup 键与窗口语义**（§3）——它决定工具输出"够不够安静、会不会漏掉真信号"；
-- 明确边界：本工具只做聚合与呈现，不替代 SIEM，不承诺生产规模性能。
+- The design trade-offs are sound: stdlib first, pure-function core, sqlite persistence — suitable as a first version of a learning-oriented defensive tool;
+- The part that needs the most careful implementation is the **dedup key and window semantics** (§3) — it determines whether the tool's output is "quiet enough and won't miss a real signal";
+- Clear boundary: this tool only does aggregation and presentation, does not replace a SIEM, and promises no production-scale performance.

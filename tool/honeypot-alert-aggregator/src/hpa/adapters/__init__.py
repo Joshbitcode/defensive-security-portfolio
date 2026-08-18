@@ -1,1 +1,1 @@
-"""适配器：把各蜜罐的原始格式翻译成统一 Event。新增蜜罐类型 = 新增一个适配器。"""
+"""Adapters: translate each honeypot's raw format into a unified Event. A new honeypot type = a new adapter."""

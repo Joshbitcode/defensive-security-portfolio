@@ -1,4 +1,4 @@
-"""配置读取：config.toml（可选）覆盖默认值，CLI 参数再覆盖配置。"""
+"""Config loading: config.toml (optional) overrides defaults; CLI args override the config in turn."""
 from __future__ import annotations
 
 import tomllib
@@ -22,7 +22,7 @@ class Settings:
 
 
 def load_settings(path: str | Path = "config.toml") -> Settings:
-    """config.toml 不存在时用默认值；存在时读取 [dedup]/[store]/[report] 段。"""
+    """Use defaults when config.toml is absent; otherwise read the [dedup]/[store]/[report] sections."""
     s = Settings()
     p = Path(path)
     if not p.is_file():

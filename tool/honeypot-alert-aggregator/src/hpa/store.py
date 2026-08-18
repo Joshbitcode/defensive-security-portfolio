@@ -1,4 +1,4 @@
-"""sqlite3 存储层：唯一碰 IO 的模块（见 DESIGN.md §4）。"""
+"""sqlite3 storage layer: the only module that touches IO (see DESIGN.md §4)."""
 from __future__ import annotations
 
 import sqlite3
@@ -12,7 +12,7 @@ SCHEMA_VERSION = "1"
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS events (
   id INTEGER PRIMARY KEY,
-  ts TEXT NOT NULL,               -- UTC ISO8601，字典序即时间序
+  ts TEXT NOT NULL,               -- UTC ISO8601; lexicographic order equals time order
   src_ip TEXT NOT NULL,
   src_port INTEGER,
   dst_ip TEXT NOT NULL,

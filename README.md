@@ -1,40 +1,40 @@
-# 防御向安全学习与研究
+# Defense-Oriented Security Learning and Research
 
-> 一名防御向的安全学习者。这个仓库用**可验证的作品**记录学习轨迹：每一篇分析都有出处，每一条命令都真实执行过。写的是简历，不是广告。
+> A defense-oriented security learner. This repository records my learning trail through **verifiable work**: every analysis cites its sources, and every command has actually been run. This is a résumé, not an advertisement.
 
-## 仓库导航
+## Repository Map
 
-| 目录 | 内容 | 说明 |
+| Directory | Contents | Notes |
 |---|---|---|
-| [cve-analysis/](cve-analysis/) | 公开 CVE 技术分析 | 结构固定：影响范围 → 补丁 diff 根因 → 触发条件 → 修复建议，标注全部来源，不含武器化利用代码 |
-| [ctf-writeups/](ctf-writeups/) | CTF 解题记录 | 只写真实做过的题，保留命令与截图，落到防御启示 |
-| [tool/](tool/) | 防御向小工具 | 蜜罐告警聚合器：设计与实现（v0.1，已测试） |
-| [profile/](profile/) | GitHub 主页 README 模板 | 复制到个人主页专用仓库即生效 |
+| [cve-analysis/](cve-analysis/) | Technical analysis of public CVEs | Fixed structure: affected scope → root cause via patch diff → trigger conditions → remediation, with all sources cited and no weaponized exploit code |
+| [ctf-writeups/](ctf-writeups/) | CTF writeups | Only real challenges I have actually solved, with commands and screenshots preserved, concluding in defensive takeaways |
+| [tool/](tool/) | Defense-oriented utilities | Honeypot alert aggregator: design and implementation (v0.1, tested) |
+| [profile/](profile/) | GitHub profile README template | Copy it into your personal profile repository to take effect |
 
-## 内容原则
+## Content Principles
 
-1. **可溯源**：CVE 分析的每个结论对应公开来源（公告、NVD、上游 commit）；
-2. **可验证**：writeup 保留真实命令与截图，不虚构解题过程；
-3. **防御向**：分析漏洞是为了识别风险配置、验证修复，不提供武器化利用代码；
-4. **诚实**：文档如实标注示例数据与真实数据的区别；工具文档不编造运行结果。
+1. **Traceable**: every conclusion in a CVE analysis maps to a public source (advisory, NVD, upstream commit);
+2. **Verifiable**: writeups keep the real commands and screenshots and never fabricate the solving process;
+3. **Defense-oriented**: analyzing vulnerabilities is about identifying risky configurations and verifying fixes, not providing weaponized exploit code;
+4. **Honest**: documents clearly mark the difference between sample data and real data; tool documentation never fabricates run results.
 
-## 技能
+## Skills
 
-以下条目**只写本仓库内容能直接证明的**，不写无法验证的能力；随仓库更新而更新。
+The following entries only claim what this repository's content can directly demonstrate, never unverifiable abilities; they are updated as the repository grows.
 
-- 公开漏洞分析：读补丁 diff、定位根因、给出修复与检测建议（见 cve-analysis/）；
-- 解题过程记录与复盘（见 ctf-writeups/，随做题进度更新）；
-- 防御工具的需求分析、设计与文档（见 tool/，代码随进度更新）；
-- Git / GitHub 的仓库组织与文档写作。
+- Public vulnerability analysis: reading patch diffs, locating root causes, and giving remediation and detection recommendations (see cve-analysis/);
+- Recording and post-mortem of solving processes (see ctf-writeups/, updated as I complete challenges);
+- Requirements analysis, design, and documentation for defensive tools (see tool/, code updated as I progress);
+- Repository organization and documentation writing with Git / GitHub.
 
-<!-- TODO: 学会新东西并留下可验证的作品后，再补充到这里。宁缺毋滥。 -->
+<!-- TODO: Add more here once I learn something new and leave behind verifiable work. Quality over quantity. -->
 
-## 不做的事
+## What I Don't Do
 
-- 不虚构头衔、证书与成绩；
-- 不写"精通/资深"这类无法验证的自我评价；
-- 不提供武器化利用代码，不转载 PoC。
+- I don't fabricate titles, certificates, or achievements;
+- I don't write unverifiable self-assessments like "expert" or "senior";
+- I don't provide weaponized exploit code, and I don't repost PoCs.
 
-## 联系
+## Contact
 
-<!-- TODO: 填写你的联系方式，例如邮箱或仅保留 GitHub -->
+<!-- TODO: Fill in your contact information, e.g. an email address, or just keep GitHub -->

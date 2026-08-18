@@ -1,4 +1,4 @@
-"""去重逻辑单测：纯函数，用合成时间序列。"""
+"""Dedup logic unit tests: pure function, using synthetic time series."""
 import unittest
 from datetime import datetime, timezone
 

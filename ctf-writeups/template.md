@@ -1,56 +1,35 @@
-# Writeup 模板
+# Category - {Web / Cryptography / Forensics / ...}
+# Author - Joshbitcode
 
-> 复制本模板到 `ctf-writeups/<platform>/<题目名>/` 下，改名为 `writeup.md`，删掉所有"占位说明"行再填写。
+**Description**
 
----
+{paste the challenge description from picoGym here, verbatim}
 
-# [平台] [题目名] Writeup
+# Solution
 
-- **平台 / 赛事**：（如 picoCTF 2019，picoGym 练习场）
-- **分类**：（Web / Crypto / Forensics / Binary / ...）
-- **难度 / 分值**：
-- **完成时间**：
-- **题目链接**：
+{narration: what you saw first, what you tried, and why you tried it — first person, casual, like a notebook entry. Include dead ends you actually hit; they make it real}
 
-## 题目背景
-
-（用自己的话复述题目：给定了什么、要得到什么。写这里能暴露你是否真的理解了题面。）
-
-## 信息收集
-
-（看到了什么？跑过哪些命令、看到哪些输出？）
-
-```bash
-# [命令占位：记录你实际执行的命令]
-$ curl -s https://...
+```
+$ {your actual terminal commands and output, copied from your own machine}
 ```
 
-![截图占位：初始信息](screenshots/01-initial.png)
+{keep alternating narration and command blocks for each step you actually did}
 
-## 漏洞点分析
+# Flag
 
-（**核心部分**：你判断问题出在哪、依据是什么。写出"我为什么这么想"——包括走过的弯路、被否掉的假设，这些比正确答案更有价值。）
-
-## 解题步骤
-
-（按时间顺序的实操记录，命令 + 截图 + 一句话说明每步目的。避免流水账：只说对推进有用的步骤。）
-
-```bash
-# [命令占位：关键步骤]
+```
+picoCTF{...}
 ```
 
-![截图占位：关键结果](screenshots/02-flag.png)
+# Time spent
 
-最终 flag：（picoCTF 格式 `picoCTF{...}`）
+Time | Date
+---|---
+xxmxxs | MM/DD/YY
 
-## 学到的防御启示
-
-（这题对应现实世界的什么弱点？防御者应该怎么做？至少一条具体措施。）
-
----
-
-## 占位说明（写完删除本节）
-
-- 命令用 `[命令占位: ...]` 标记的地方，必须替换为**你实际执行**的命令，不要事后美化；
-- 截图放入 `screenshots/` 目录后，把占位图引用改成真实文件名；
-- 走弯路的部分不要删：真实解题过程包含试错，这正是"可验证"的来源。
+<!-- fill rules (delete this comment before publishing):
+1. every command block must be output you actually ran and copied, not cleaned-up versions;
+2. screenshots go into the screenshots/ folder next to this file and are referenced inline;
+3. the narration must be your own thought process — write down why you tried each step;
+4. never copy another writeup's narration; the commands are the boring part, the "why" is the writeup.
+-->
