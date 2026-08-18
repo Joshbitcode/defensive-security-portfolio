@@ -11,7 +11,14 @@ This is day 51 of my security learning. I picked "13" from the Cryptography cate
 
 ROT13 rotates each letter 13 places forward (A→N, B→O, …), and because the alphabet has 26 letters, applying it a second time returns the original text. That symmetry is convenient: the same operation encrypts and decrypts, so there is nothing to reverse-engineer.
 
-I keep a small decoder script in my practice folder from earlier learning, so I just ran it from `E:\ctf`:
+I keep a small decoder script in my practice folder from earlier learning — `day51.py` is just two lines that lean on Python's codecs module:
+
+```python
+import codecs;
+print(codecs.decode('cvpbPGS{abg_gbb_onq_bs_n_ceboyrz}','rot_13'))
+```
+
+So I just ran it from `E:\ctf`:
 
 ```
 (ctf) PS E:\ctf> python .\day51.py
