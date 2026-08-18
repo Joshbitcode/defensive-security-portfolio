@@ -18,7 +18,7 @@
 |---|---|---|
 | 语言 | Python ≥ 3.10 | 生态成熟、部署简单，与蜜罐工具链同语言 |
 | CLI | argparse（标准库） | 零依赖 |
-| 配置 | TOML（3.11+ 用标准库 tomllib；3.10 可选装 tomli） | 人类可读、机器可写 |
+| 配置 | TOML（标准库 tomllib，需 Python ≥ 3.11） | 人类可读、机器可写 |
 | 存储 | sqlite3（标准库） | 单文件、无服务、重启不丢状态 |
 | 去重/载荷摘要 | hashlib | 载荷哈希作为去重键的一部分 |
 | 可选富化 | geoip2（optional extra） | 只做"可选"，不设为默认依赖 |
@@ -59,14 +59,20 @@ honeypot-alert-aggregator/
 以下命令形态为**接口约定**，具体行为以实现为准；示例输出为演示格式。
 
 ```bash
-# 接入一条或多条告警（JSON Lines，- 表示 stdin）
-python -m hpa ingest alerts.jsonl
+# 安装（可选，装了之后直接敲 hpa；不装也可用 PYTHONPATH=src python -m hpa）
+pip install -e .
 
-# 查看 24 小时汇总：按来源 IP、事件类型、蜜罐节点统计
-python -m hpa report --last 24h --format text
+# 接入一条或多条告警（JSON Lines，不带文件参数则读 stdin）
+python -m hpa ingest samples/alerts.jsonl
+
+# 查看最近 24 小时汇总：按来源 IP、事件类型、蜜罐节点统计
+python -m hpa report --last 24 --format text
+
+# 指定显式时间窗口（适合回溯历史告警）
+python -m hpa report --since 2026-02-01T00:00:00Z --until 2026-02-02T00:00:00Z
 
 # 导出机器可读报告
-python -m hpa report --last 7d --format json -o report.json
+python -m hpa report --last 168 --format json -o report.json
 
 # 查看去重与存储状态
 python -m hpa status
@@ -102,6 +108,29 @@ top source IPs:
 
 ## 状态与边界
 
-- 代码由仓库所有者实现，本仓库当前只有设计与文档；
+- 代码已实现（v0.1，Python ≥ 3.11，标准库 only），单元测试 6/6 通过；下面"验证过的运行输出"一节是对 `samples/alerts.jsonl`（合成数据）的真实运行结果；
 - 本工具是**学习型防御工具**，不替代 SIEM/SOAR，不承诺处理大规模生产流量；
 - 若接入真实蜜罐数据，请自查当地法律与蜜罐部署的合规边界（仅部署在自有资产上）。
+
+## 验证过的运行输出（真实测试运行，输入为合成样例）
+
+```text
+$ python -m hpa --db tmp-e2e.db ingest samples/alerts.jsonl
+ingested: new=4 duplicates=1 skipped=0 (window=300s, db=tmp-e2e.db)
+
+$ python -m hpa --db tmp-e2e.db report --since 2026-02-01T00:00:00Z --until 2026-02-02T00:00:00Z
+Report window: 2026-02-01T00:00:00+00:00 ~ 2026-02-02T00:00:00+00:00 (explicit range)
+unique events (after dedup): 4   sources: 2
+
+top source IPs:
+      203.0.113.42  events=3    honeypots=2  [ssh-authx2, login-attemptx1] [cross-node]
+      198.51.100.7  events=1    honeypots=1  [http-scanx1]
+```
+
+解读：5 条原始告警中 1 条被 300 s 窗口去重；203.0.113.42 同时命中 ssh-01 与 telnet-02 两个蜜罐，被标记 `[cross-node]` 并置顶——这正是设计目标"谁值得人工看"。
+
+## 运行测试
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v   # 6 个用例，全过
+```
