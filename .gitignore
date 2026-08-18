@@ -1,0 +1,17 @@
+# 本地研究临时目录（克隆的源码仓库、公告库等，不进入版本库）
+tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# 工具运行时产物
+tool/honeypot-alert-aggregator/*.db
+tool/honeypot-alert-aggregator/*.db-*
+
+# 系统文件
+Thumbs.db
+.DS_Store
