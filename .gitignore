@@ -1,6 +1,9 @@
 # 本地研究临时目录（克隆的源码仓库、公告库等，不进入版本库）
 tmp/
 
+# 个人申请材料草稿（不公开）
+CVP-application-draft.md
+
 # Python
 __pycache__/
 *.py[cod]
